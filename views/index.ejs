@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Local File Share</title>
+		<style>
+			body {
+				font-family: sans-serif;
+				background: #222;
+				color: #eee;
+				padding: 20px;
+			}
+			h1 {
+				border-bottom: 2px solid #555;
+			}
+			form {
+				margin-bottom: 20px;
+				background: #333;
+				padding: 15px;
+				border-radius: 8px;
+			}
+			input[type="file"],
+			input[type="password"] {
+				color: #eee;
+			}
+			button {
+				background: #76d7c4;
+				border: none;
+				padding: 8px 15px;
+				margin-left: 10px;
+				border-radius: 4px;
+				cursor: pointer;
+			}
+			button:hover {
+				background: #58b2a4;
+			}
+			a {
+				color: #76d7c4;
+				text-decoration: none;
+			}
+			a:hover {
+				text-decoration: underline;
+			}
+			ul {
+				list-style: none;
+				padding: 0;
+			}
+			li {
+				margin: 10px 0;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Available Files</h1>
+
+		<!-- Upload Form -->
+		<form
+			action="/upload"
+			method="POST"
+			enctype="multipart/form-data"
+		>
+			<input
+				type="file"
+				name="file"
+				required
+			/>
+			<input
+				type="password"
+				name="password"
+				placeholder="Set download password"
+				required
+			/>
+			<button type="submit">Upload</button>
+		</form>
+
+		<!-- File List -->
+		<ul id="file-list">
+			<% if (files.length > 0) { %> <% files.forEach(file => { %>
+			<li>
+				<a
+					href="#"
+					onclick="requestPassword('<%= file %>')"
+					><%= file %></a
+				>
+			</li>
+			<% }) %> <% } else { %>
+			<p>No files found in the shared folder.</p>
+			<% } %>
+		</ul>
+
+		<script>
+			async function refreshFiles() {
+				const res = await fetch("/files");
+				if (!res.ok) return;
+				const files = await res.json();
+				const list = document.getElementById("file-list");
+				list.innerHTML = files
+					.map(
+						(f) =>
+							`<li><a href="#" onclick="requestPassword('${f}')">${f}</a></li>`
+					)
+					.join("");
+			}
+			setInterval(refreshFiles, 5000);
+
+			async function requestPassword(filename) {
+				const password = prompt(`Enter password for "${filename}"`);
+				if (!password) return;
+
+				const res = await fetch("/verify-password", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ filename, password }),
+				});
+				const data = await res.json();
+				if (data.ok) {
+					window.location.href = `/download/${encodeURIComponent(
+						filename
+					)}`;
+				} else {
+					alert(data.msg || "Wrong password");
+				}
+			}
+		</script>
+	</body>
+</html>
