@@ -2,6 +2,8 @@
 
 A simple **Express + TypeScript** file-sharing web app that lets you **upload and download files securely** over your **local Wi-Fi network** — protected by per-file passwords and accessible via QR code.
 
+![Demo Image](public/readme_image.png)
+
 ## 🚀 Features
 
 ✅ **Upload files** through a browser form  
@@ -10,7 +12,6 @@ A simple **Express + TypeScript** file-sharing web app that lets you **upload an
 ✅ **View QR code** for quick mobile access  
 ✅ **Accessible over local network** (auto-detects your Wi-Fi IP)  
 ✅ **Modular & clean TypeScript architecture**
-
 
 ## ⚙️ Setup Instructions
 
@@ -23,15 +24,19 @@ npm install
 ```
 
 ### 2. Build the TypeScript Project
+
 ```bash
 npm run build
 ```
+
 ### 3. Start the Server
+
 ```bash
 npm run start
 ```
 
 ### 4. Example Output
+
 ```bash
 Server is running!
 - Local:   http://localhost:4000
@@ -43,12 +48,11 @@ You can also scan this QR code with other devices on the same network:
 
 ## 🌐 Usage
 
-Open your browser and go to the network IPv4 address shown in the output. 
+Open your browser and go to the network IPv4 address shown in the output.
 
 Upload a file and set a password. The file is stored inside the shared/ directory.
 
 To download a file: Enter the file name and password when prompted. If verified, the download will begin.
-
 
 ## 🔒 Security Model
 
