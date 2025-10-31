@@ -7,6 +7,7 @@ const app = express();
 
 app.set("view engine", "ejs");
 app.set("views", VIEWS_DIR);
+app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
