@@ -6,125 +6,300 @@
 			name="viewport"
 			content="width=device-width, initial-scale=1.0"
 		/>
-		<title>Local File Share</title>
-		<style>
-			body {
-				font-family: sans-serif;
-				background: #222;
-				color: #eee;
-				padding: 20px;
-			}
-			h1 {
-				border-bottom: 2px solid #555;
-			}
-			form {
-				margin-bottom: 20px;
-				background: #333;
-				padding: 15px;
-				border-radius: 8px;
-			}
-			input[type="file"],
-			input[type="password"] {
-				color: #eee;
-			}
-			button {
-				background: #76d7c4;
-				border: none;
-				padding: 8px 15px;
-				margin-left: 10px;
-				border-radius: 4px;
-				cursor: pointer;
-			}
-			button:hover {
-				background: #58b2a4;
-			}
-			a {
-				color: #76d7c4;
-				text-decoration: none;
-			}
-			a:hover {
-				text-decoration: underline;
-			}
-			ul {
-				list-style: none;
-				padding: 0;
-			}
-			li {
-				margin: 10px 0;
-			}
-		</style>
+		<title>LocalShare</title>
+		<!-- ✅ Use local Tailwind build -->
+		<script src="tailwind3_4_17.js"></script>
 	</head>
-	<body>
-		<h1>Available Files</h1>
 
-		<!-- Upload Form -->
-		<form
-			action="/upload"
-			method="POST"
-			enctype="multipart/form-data"
+	<body class="min-h-screen bg-white text-slate-900">
+		<!-- Header -->
+		<header class="border-b border-slate-200 bg-white">
+			<div
+				class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center"
+			>
+				<h1 class="text-2xl font-bold text-blue-600">LocalShare</h1>
+				<p class="text-sm text-slate-500">Secure Local File Sharing</p>
+			</div>
+		</header>
+
+		<!-- Main Content -->
+		<main class="max-w-6xl mx-auto px-4 py-12">
+			<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+				<!-- Upload + File list -->
+				<div class="lg:col-span-2 space-y-8">
+					<!-- Upload Section -->
+					<section
+						class="border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center hover:border-blue-400 transition"
+					>
+						<form
+							action="/upload"
+							method="POST"
+							enctype="multipart/form-data"
+							class="space-y-4"
+						>
+							<h2 class="text-xl font-semibold mb-4">
+								Upload & Protect Your File
+							</h2>
+
+							<input
+								type="file"
+								name="file"
+								required
+								class="block w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+							/>
+
+							<div class="relative w-full">
+								<input
+									id="upload-password"
+									type="password"
+									name="password"
+									placeholder="Enter password..."
+									required
+									class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+								/>
+								<button
+									type="button"
+									id="toggle-upload-password"
+									class="absolute inset-y-0 right-3 flex items-center text-slate-500 hover:text-blue-500"
+								>
+									👁️
+								</button>
+							</div>
+
+							<button
+								type="submit"
+								class="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-lg"
+							>
+								Upload
+							</button>
+						</form>
+					</section>
+
+					<!-- File List -->
+					<section>
+						<h2 class="text-xl font-semibold mb-4">Your Files</h2>
+
+						<% if (files.length === 0) { %>
+						<p class="text-slate-500 text-center py-10">
+							No files uploaded yet.
+						</p>
+						<% } else { %>
+						<div class="overflow-x-auto">
+							<table
+								class="min-w-full border border-slate-200 rounded-lg"
+							>
+								<thead
+									class="bg-slate-100 text-slate-700 text-sm"
+								>
+									<tr>
+										<th class="px-4 py-2 text-left">
+											File
+										</th>
+										<th class="px-4 py-2 text-left">
+											Size
+										</th>
+										<th class="px-4 py-2 text-left">
+											Date
+										</th>
+										<th class="px-4 py-2"></th>
+									</tr>
+								</thead>
+								<tbody class="text-sm">
+									<% files.forEach(file => { const filename =
+									(typeof file === "string") ? file :
+									(file.name || ""); %>
+									<tr
+										class="border-t border-slate-200 hover:bg-slate-50"
+									>
+										<td class="px-4 py-2">
+											<%= filename %>
+										</td>
+										<td class="px-4 py-2 text-slate-500">
+											<%= file.size || "-" %>
+										</td>
+										<td class="px-4 py-2 text-slate-500">
+											<%= file.date || "-" %>
+										</td>
+										<td class="px-4 py-2 text-right">
+											<button
+												type="button"
+												class="bg-blue-500 hover:bg-blue-600 text-white text-sm px-4 py-1.5 rounded-lg download-btn cursor-pointer"
+												data-filename="<%- filename.replace(/"/g, '&quot;') %>"
+					
+											>
+												Download
+											</button>
+										</td>
+									</tr>
+									<% }) %>
+								</tbody>
+							</table>
+						</div>
+						<% } %>
+					</section>
+				</div>
+
+				<!-- QR Section -->
+				<div class="lg:col-span-1 space-y-4">
+					<div
+						class="border border-slate-200 rounded-xl p-6 text-center"
+					>
+						<h2 class="text-lg font-semibold mb-4">
+							Connect via QR
+						</h2>
+						<div class="flex justify-center">
+							<img
+								src="<%= qrcode %>"
+								alt="QR Code"
+								class="rounded-lg w-40 h-40"
+							/>
+						</div>
+						<p class="text-sm text-slate-500 mt-4 break-words">
+							<%= url %>
+						</p>
+					</div>
+				</div>
+			</div>
+		</main>
+
+		<!-- Download Modal -->
+		<div
+			id="download-modal"
+			class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
 		>
-			<input
-				type="file"
-				name="file"
-				required
-			/>
-			<input
-				type="password"
-				name="password"
-				placeholder="Set download password"
-				required
-			/>
-			<button type="submit">Upload</button>
-		</form>
+			<div class="bg-white rounded-2xl shadow-lg w-full max-w-md p-6">
+				<h2 class="text-2xl font-semibold mb-2 flex items-center gap-2">
+					🔒 Enter Password
+				</h2>
+				<p class="text-slate-600 mb-6">
+					Required to download
+					<span
+						id="file-name"
+						class="font-semibold"
+					></span>
+				</p>
 
-		<!-- File List -->
-		<ul id="file-list">
-			<% if (files.length > 0) { %> <% files.forEach(file => { %>
-			<li>
-				<a
-					href="#"
-					onclick="requestPassword('<%= file %>')"
-					><%= file %></a
-				>
-			</li>
-			<% }) %> <% } else { %>
-			<p>No files found in the shared folder.</p>
-			<% } %>
-		</ul>
+				<div class="relative mb-4">
+					<input
+						id="download-password"
+						type="password"
+						placeholder="Enter password..."
+						class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+					/>
+					<button
+						type="button"
+						id="toggle-download-password"
+						class="absolute inset-y-0 right-3 flex items-center text-slate-500 hover:text-blue-500"
+					>
+						👁️
+					</button>
+				</div>
 
+				<div class="flex gap-3">
+					<button
+						onclick="closeDownloadModal()"
+						class="flex-1 border border-slate-300 hover:bg-slate-50 py-2 rounded-lg"
+					>
+						Cancel
+					</button>
+					<button
+						id="confirm-download"
+						class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg"
+					>
+						Download
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- JS Logic -->
 		<script>
-			async function refreshFiles() {
-				const res = await fetch("/files");
-				if (!res.ok) return;
-				const files = await res.json();
-				const list = document.getElementById("file-list");
-				list.innerHTML = files
-					.map(
-						(f) =>
-							`<li><a href="#" onclick="requestPassword('${f}')">${f}</a></li>`
-					)
-					.join("");
-			}
-			setInterval(refreshFiles, 5000);
-
-			async function requestPassword(filename) {
-				const password = prompt(`Enter password for "${filename}"`);
-				if (!password) return;
-
-				const res = await fetch("/verify-password", {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ filename, password }),
+			// Upload password toggle
+			document
+				.getElementById("toggle-upload-password")
+				.addEventListener("click", () => {
+					const input = document.getElementById("upload-password");
+					input.type =
+						input.type === "password" ? "text" : "password";
 				});
-				const data = await res.json();
-				if (data.ok) {
-					window.location.href = `/download/${encodeURIComponent(
-						filename
-					)}`;
-				} else {
-					alert(data.msg || "Wrong password");
-				}
+
+			// Download modal logic
+			let selectedFile = null;
+
+			function openDownloadModal(file) {
+				selectedFile = file;
+				document.getElementById("file-name").innerText = file;
+				document.getElementById("download-password").value = "";
+				document
+					.getElementById("download-modal")
+					.classList.remove("hidden");
 			}
+
+			document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.download-btn');
+  if (!btn) return;
+  const filename = btn.getAttribute('data-filename');
+  if (!filename) return;
+  openDownloadModal(filename);
+});
+
+			function closeDownloadModal() {
+				selectedFile = null;
+				document.getElementById("download-password").value = "";
+				document
+					.getElementById("download-modal")
+					.classList.add("hidden");
+			}
+
+			// Download password toggle
+			document
+				.getElementById("toggle-download-password")
+				.addEventListener("click", () => {
+					const input = document.getElementById("download-password");
+					input.type =
+						input.type === "password" ? "text" : "password";
+				});
+
+			// Confirm download
+			document
+				.getElementById("confirm-download")
+				.addEventListener("click", async () => {
+					const password =
+						document.getElementById("download-password").value;
+					if (!selectedFile) {
+						alert("No file selected.");
+						return;
+					}
+					if (!password) {
+						alert("Please enter a password.");
+						return;
+					}
+
+					try {
+						const res = await fetch("/verify-password", {
+							method: "POST",
+							headers: { "Content-Type": "application/json" },
+							body: JSON.stringify({
+								filename: selectedFile,
+								password,
+							}),
+						});
+
+						const data = await res.json();
+
+						if (data.ok) {
+							window.location.href = `/download/${encodeURIComponent(
+								selectedFile
+							)}`;
+							closeDownloadModal();
+						} else {
+							alert(data.msg || "Wrong password.");
+						}
+					} catch (err) {
+						console.error(err);
+						alert("Error verifying password.");
+					}
+				});
 		</script>
 	</body>
 </html>
