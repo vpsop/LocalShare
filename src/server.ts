@@ -2,7 +2,7 @@ import qrcode from "qrcode-terminal";
 import app from "./app";
 import { getWifiIPv4 } from "./utils/network";
 
-const PORT = 4000;
+export const PORT = 4000;
 const HOST = "0.0.0.0";
 
 app.listen(PORT, HOST, () => {

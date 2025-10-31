@@ -1,16 +1,26 @@
 import fs from "fs/promises";
 import bcrypt from "bcryptjs";
 import path from "path";
+import { toDataURL } from "qrcode";
 import { Request, Response } from "express";
 import { getMetadata, saveMetadata } from "../utils/metadata";
 import { METADATA_FILE_NAME, SHARED_DIR } from "../config/paths";
+import { getWifiIPv4 } from "../utils/network";
+import { PORT } from "../server";
+import { log } from "console";
 
 export async function listFiles(req: Request, res: Response) {
 	const entries = await fs.readdir(SHARED_DIR, { withFileTypes: true });
 	const fileNames = entries
 		.filter((f) => f.isFile() && f.name !== METADATA_FILE_NAME)
 		.map((f) => f.name);
-	res.render("index", { files: fileNames });
+	const address = getWifiIPv4();
+	// console.log("FILES:", fileNames);
+	res.render("index", {
+		files: fileNames,
+		url: `http://${address}:${PORT}`,
+		qrcode: await toDataURL(`http://${address}:${PORT}`),
+	});
 }
 
 export async function listFilesJson(_req: Request, res: Response) {
@@ -40,6 +50,7 @@ export async function verifyPassword(req: Request, res: Response) {
 	const { filename, password } = req.body;
 	const metadata = await getMetadata();
 	const hash = metadata[filename];
+	log("Verifying password for file:", filename);
 	if (!hash)
 		return res.status(404).json({ ok: false, msg: "No password set." });
 
